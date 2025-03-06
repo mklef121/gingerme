@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model brands {
+  id       Int        @id
+  name     String?    @db.VarChar(255)
+  products products[]
+}
+
+model categories {
+  id       Int        @id
+  name     String?    @db.VarChar(255)
+  products products[]
+}
+
+model orders {
+  id          Int       @id
+  user_id     Int?
+  product_id  Int?
+  quantity    Int?
+  total_price Decimal?  @db.Decimal(10, 2)
+  products    products? @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users       users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model product_reviews {
+  id          Int       @id
+  product_id  Int?
+  user_id     Int?
+  rating      Int?
+  review_text String?
+  products    products? @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users       users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model products {
+  id              Int               @id
+  name            String?           @db.VarChar(255)
+  price           Decimal?          @db.Decimal(10, 2)
+  stock           Int?
+  category_id     Int?
+  brand_id        Int?
+  supplier_id     Int?
+  orders          orders[]
+  product_reviews product_reviews[]
+  brands          brands?           @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  categories      categories?       @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  suppliers       suppliers?        @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model suppliers {
+  id       Int        @id
+  name     String?    @db.VarChar(255)
+  products products[]
+}
+
+model users {
+  id              Int               @id
+  name            String?           @db.VarChar(255)
+  email           String?           @unique @db.VarChar(255)
+  orders          orders[]
+  product_reviews product_reviews[]
+}

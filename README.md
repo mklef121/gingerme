@@ -140,3 +140,6 @@ Security Considerations (How would you handle DDoS attacks, API security, data e
 - API security: User authentication should be stateless and implemented using a secure technique like JWT. The API gateway should be able to identify and validate the user making requests to other services.
 
 
+## Leadership & Management Task
+
+

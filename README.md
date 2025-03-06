@@ -142,4 +142,65 @@ Security Considerations (How would you handle DDoS attacks, API security, data e
 
 ## Leadership & Management Task
 
+**Technical Memo**
+
+**To:** Development Team
+**From:** Miracle Nwabueze, Technical Lead
+**Date:** 5th March, 2025
+**Subject:** Monolith vs. Microservices Architectural Decision for Our New eCommerce Platform
+
+**Executive Summary**
+
+This memo addresses the ongoing discussion regarding the architectural approach for our new eCommerce platform.
+
+This memo is about how we should build our new eCommerce platform. We need to choose to structure it as a monolithic or a microservices.
+
+Since we have only three months to complete the project, we must carefully weigh the advantages and disadvantages of each option and choose a pattern that balances simplicity, scalability, and future growth for the company and the team.
+
+This memo will do the following:  
+1. Compare the benefits and drawbacks of both options.  
+2. Explain which one we’re choosing and why.  
+3. Outline a plan in case we need to switch in the future.  
+4. Team alignment and conclusion
+
+**Monolithic Architecture: Advantages and Disadvantages**
+
+* **advantages:**
+    * **Simplicity:** Easier to develop, deploy, and debug, especially for a small team like ours with the tight deadline we have.
+    * **Reduced Complexity:** There are fewer moving parts, and simple communication and messaging patterns,
+    * **Faster Initial Development:** A monolith provides faster setup and deployment which takes away the need for complex CI/CD requirements. This will lead to faster development and release in the early stages.
+* **disadvantages:**
+    * **Scalability Limitations:** When there is a need to scale, it is hard to scale individual components. This will require a vertical increment in hardware resources.
+    * **Deployment Bottlenecks:** When changes take place in any part of the application, the entire monolith will have to be redeployment.
+    * **Technology Flexibility:** It will be difficult to adopt new technologies or languages that work better for a specific need.
+    * **Fault Isolation:** A single failure can bring down the entire application.
+
+**Microservices Architecture: Advantages and Disadvantages**
+
+* **Advantages:**
+    * **Scalability:** Independent scaling of individual services based on demand.
+    * **Technology Flexibility:** A microservice allows us to use different technologies and languages that can address a specific need for a service.
+    * **Fault Isolation:** Failures in one service do affect the entire eCommerce application.
+    * **Faster development cycles:** As we grow, it becomes easier for smaller teams to independently manage and deploy changes to domain services.
+* **Disadvantages:**
+    * **Complexity:** There is increased complexity in development, deployment, and monitoring.
+    * **Communication Overhead:** A microservice requires very robust communication patterns between services, a fault in this communication technology can break the application.
+    * **Operational Cost:** There will be more complex infrastructure needs which will spike the cost of running the platform.
+
+**Final Decision**
+Given our three-month deadline and the current team size, we will proceed with a monolithic architecture for the initial launch. This decision is based on the time constraint, team size, team budget and reduced initial complexity.
+
+
+**Migration Strategy**
+It's a possibility that we might migrate to a microservice architecture in the near future depending on the team growth, scalability bottlenecks, and the company's requirements. To address this in the future, we will need to plan from now, I would suggest we use a pattern called [Modular Monolith](https://www.milanjovanovic.tech/blog/what-is-a-modular-monolith) in developing our current application, this will make it easier to break it up into smaller services in the feature. 
+In the case of future Migration, we can adopt the [Strangler Fig pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/strangler-fig) proposed by Microsoft where existing modules on the monolith are incrementally migrated to a service.
+
+**Conclusion**
+As already discussed above, we will adopt a monolithic architecture during the initial launch and we will revisit a microservices transition when scaling, flexibility, or deployment needs are required. To achieve this I will provide clear communication at every step, ensuring that everyone's thoughts and contributions are captured in any decision we take. Also, we will be providing training and courses for team members on monolith best practices and microservice architecture.
+
+
+## SQL Performance & Query Optimization
+
+
+
 

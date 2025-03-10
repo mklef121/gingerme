@@ -1,5 +1,17 @@
-##
-Running the BACKEND PROJECT
+
+## Running the project
+Using `docker-compose` will be the easiest route to quickly boostrap and run both the backend and frontend projects.
+Follow the following steps
+- Install docker on your system
+- Create a `.env` file in your `backend` directory and add the following field to it
+  ```bash
+    DATABASE_URL="postgresql://shared-user:password@postgres-database:5432/ecommerce?schema=public"
+  ```
+- Buid both the database, backend and frontend services with  `docker-compose up` command
+- The `postgres` database is now available to your on your local machine on port `5445`.
+- Use your prefered `Database IDEs` to connect to the port `5445` using `shared-user` and `shared-user` and the database username and password respectively.
+- Run the sql script attached to the test invitation email to have all the data seeded. This should be done on the `public schema`.
+- Now you are good to go. The backend is accessible on `http://localhost:3000` while the front end is accessible on `http://localhost:8080`
 
 
 ## System Design Task
@@ -206,8 +218,6 @@ As already discussed above, we will adopt a monolithic architecture during the i
 ## SQL Performance & Query Optimization
 
 
-
-
 Efficiently fetch products with their categories, brands, and suppliers.
 
 ```sql
@@ -309,7 +319,7 @@ To improve performance when running a single MySQL/PostgreSQL instance, I would 
 3. Select necessary data: Reduce the usage of `SELECT *` and get the data needed for any operation.
 4. Use `LIMIT` and `OFFSET` clauses for pagination and to reduce the retrieved data set.
 
-Rate limit can be done on the infrastructure level or on the Web server. Also There is an express package called `express-rate-limit` that can be used to implement rate limiting on  the application layer. 
+Rate limit can be done on the infrastructure level or on the Web server. Also There is an express package called `express-rate-limit` that can be used to implement rate limiting on the application layer. 
 
 
 

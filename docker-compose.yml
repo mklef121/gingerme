@@ -1,0 +1,28 @@
+services:
+  postgres-database:
+    image: postgres
+    restart: always
+    ports:
+      - "5445:5432"
+    volumes:
+      - ./container-volumes/postgres/db-data:/var/lib/postgresql/data
+      - ./container-volumes/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d # the init script to create DB
+    environment:
+      POSTGRES_USER: shared-user
+      POSTGRES_PASSWORD: password   
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres-database
+  frontend:
+    depends_on:
+      - backend
+    build:
+      context: ./frontend
+    ports:
+      - "8080:80"
+      
+      

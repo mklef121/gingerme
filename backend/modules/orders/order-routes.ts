@@ -1,9 +1,12 @@
 import { Router } from "express"
-import { GetOrder } from "./order-controller"
+import { getOrder, getOrders } from "./order-controller"
 import { integerParamValidator } from "../../utils/validator"
+import { getOrdersValidator } from "./validator"
 
 const router = Router()
 
-router.get("/:orderId", integerParamValidator("orderId"), GetOrder)
+router.get("/:orderId", integerParamValidator("orderId"), getOrder)
+router.get("/",getOrdersValidator(), getOrders)
+
 
 export default router

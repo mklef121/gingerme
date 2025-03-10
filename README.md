@@ -1,3 +1,7 @@
+##
+Running the BACKEND PROJECT
+
+
 ## System Design Task
 
 ### High-Level Architecture Diagram
@@ -201,6 +205,111 @@ As already discussed above, we will adopt a monolithic architecture during the i
 
 ## SQL Performance & Query Optimization
 
+
+
+
+Efficiently fetch products with their categories, brands, and suppliers.
+
+```sql
+SELECT products.id,
+       products.name,
+       products.price,
+       products.stock,
+       products.category_id,
+       products.brand_id,
+       products.supplier_id,
+       brands.name     as brand_name,
+       categories.name as categories_name,
+       suppliers.name  as suppliers_name
+
+FROM public.products as products
+         INNER JOIN public.brands as brands ON products.brand_id = brands.id
+         INNER JOIN public.categories as categories ON products.category_id = categories.id
+         INNER JOIN public.suppliers as suppliers ON products.supplier_id = suppliers.id;
+```
+
+
+Get the top 10 most sold products.
+
+```sql
+SELECT
+    products.id,
+    products.name,
+    SUM(orders.quantity) AS total_quantity_sold
+FROM
+    public.products
+INNER JOIN
+    public.orders ON products.id = orders.product_id
+GROUP BY
+    products.id, products.name
+ORDER BY
+    total_quantity_sold DESC
+LIMIT 10;
+```
+The performance of the top 10 most sold products query can be improved by 
+- Create index on the `product_id` column in `orders` table as posgres does not create indexes on FOREIGN KEY
+- A materialized view can be used to cache this data and refreshed over time because this query will usually be run very frequently and will usually return same result over a period of time 
+
+
+Fetch the latest 100 orders
+```sql
+SELECT
+    orders.id AS order_id,
+    orders.user_id,
+    orders.quantity,
+    orders.total_price,
+    orders.product_id,
+    products.name AS product_name,
+    products.name AS brand_name,
+    category.name AS category_name,
+    supliers.name AS supplier_name,
+    users.name AS user_name,
+    users.email AS user_email
+FROM
+    public.orders orders
+INNER JOIN
+    public.products products ON orders.product_id = products.id
+LEFT JOIN
+    public.brands brands ON products.brand_id = brands.id
+LEFT JOIN
+    public.categories category ON products.category_id = category.id
+LEFT JOIN
+    public.suppliers supliers ON products.supplier_id = supliers.id
+INNER JOIN
+    public.users users ON orders.user_id = users.id
+ORDER BY
+    orders.id DESC
+LIMIT 100;
+```
+
+Improvements suggestions to the database structure.
+- The order has a one to one relationship to products, the structure can be improved to be a one to many relationship to products, this will enable having multiple products in a single order
+- Index foreign keys columns
+- The foreign key indexes should have integrity contraints like `on update` and `on delete` 
+- The user identifiable information can be enhanced by adding column password to aid login and user identification.
+
+
+
+## Follow-Up Questions
+
+
+### Scaling considerations
+
+If this dataset i have access to grows 5x, I would consider the following
+
+1. Setup replicas: with this strategy, I would reduce the load on the primary database and have replicas that will provide read only data
+2. Caching: There are frequently accessed data that can be cached so database hits become less frequent. I will introduce materialised views and also bring in key-value caches like redis
+3. Database scaling: The infrastructure housing the database can be scaled horizontally by considering sharding the data or opting for a distribted SQL engine like `cockroachDB`
+4. Microservice: Going microservice can help since each service will house it's related data. This will reduce the load on the primary database. Also as high traffic becomes imminent, a microservice design can scale to meet the increase.
+
+To improve performance when running a single MySQL/PostgreSQL instance, I would do the following 
+
+1. Index: proper indexing on frequently queried columns to speed up query reads.
+2. Frequent database tuning: There are a number of tuning to be done on the database layer or the hardware to enable increased speed. This include adjusting the I/O settings like `shared_buffers` & `work_mem`.
+3. Select necessary data: Reduce the usage of `SELECT *` and get the data needed for any operation.
+4. Use `LIMIT` and `OFFSET` clauses for pagination and to reduce the retrieved data set.
+
+Rate limit can be done on the infrastructure level or on the Web server. Also There is an express package called `express-rate-limit` that can be used to implement rate limiting on  the application layer. 
 
 
 

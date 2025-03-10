@@ -1,6 +1,7 @@
 import { orders, Prisma, products, users } from "@prisma/client"
 import { prisma } from "../../database/database-connect"
 import { PRODUCT_NOT_FOUND, STOCK_EXHAUSTED } from "../products/errors"
+import { GetOrderRequest, LATEST } from "./dtos"
 
 export async function GetOrder(id: number) {
     const product = await prisma.orders.findFirst({
@@ -14,7 +15,7 @@ export async function GetOrder(id: number) {
 
 export async function createOrder(user: users, productId: number, quantity: number) {
 
-   return await prisma.$transaction(async (tx) => {
+    return await prisma.$transaction(async (tx) => {
 
         const lockedProducts = await tx.$queryRaw<products[]>(Prisma.sql`
         SELECT id, name, stock, price
@@ -63,5 +64,48 @@ export async function createOrder(user: users, productId: number, quantity: numb
             throw Error(STOCK_EXHAUSTED)
         }
 
+    })
+}
+
+
+export async function getOrders(request: GetOrderRequest) {
+    return await prisma.orders.findMany({
+        take: request.limit,
+        orderBy: {
+            id: request.sort === LATEST ? 'desc' : 'asc',
+        },
+        select: { // Explicitly select fields
+            id: true,
+            user_id: true,
+            quantity: true,
+            total_price: true,
+            product_id: true,
+            products: {
+                select: {
+                    name: true,
+                    brands: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                    categories: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                    suppliers: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                },
+            },
+            users: {
+                select: {
+                    name: true,
+                    email: true,
+                },
+            },
+        },
     })
 }

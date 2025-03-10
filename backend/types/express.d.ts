@@ -6,3 +6,9 @@ declare module "express-serve-static-core" {
     user?: users;
   }
 }
+
+declare global {
+  interface BigInt {
+      toJSON(): Number;
+  }
+}

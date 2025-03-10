@@ -9,8 +9,8 @@ export interface PaginationRequest {
 
 export interface ProductsResult {
     page: number
-    totalPages: number
-    totalCount: number
+    total_pages: number
+    total_count: number
     products: ProductDetailsRespone[]
 }
 
@@ -43,4 +43,10 @@ export interface ProductDetailsRespone extends products {
         name: string
     },
     average_rating: Prisma.Decimal | null;
+}
+
+export interface TopSoldProducts {
+    id: number;
+    name: string;
+    quantity_sold: number;
 }

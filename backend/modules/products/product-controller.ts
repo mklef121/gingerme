@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { sendResponse, HttpStatus } from "../../http/response"
 import { getValidationMessage } from "../../utils/validator"
-import { getProduct as getProductService, getProducts as getProductsService } from "./product-service"
+import { getAllBrands, getAllSuppliers, getProduct as getProductService, getProducts as getProductsService, getTop10SoldProducts } from "./product-service"
 import { validationResult } from "express-validator"
 import { PaginationRequest } from "./dtos"
 import { createOrder } from "../orders/order-service"
@@ -71,8 +71,37 @@ export async function createProductOrder(req: Request, res: Response) {
         const result = await createOrder(req.user as users, Number(req.params.productId), req.body.quantity)
         sendResponse(res, HttpStatus.OK, "", result)
     } catch (error: any) {
-        console.log("The error", error)
         sendResponse(res, HttpStatus.BAD_REQUEST, error.message)
         return
+    }
+}
+
+export async function getTopSoldProducts(_req: Request, res: Response) {
+    try {
+        sendResponse(res, HttpStatus.OK, "", await getTop10SoldProducts())
+        return
+    } catch (error) {
+        console.log("failed to get results due to database issue, Error: ", error)
+        sendResponse(res, HttpStatus.INTERNAL_SERVER_ERROR, "failed to get results.")
+    }
+}
+
+export async function getBrands(_req: Request, res: Response) {
+    try {
+        sendResponse(res, HttpStatus.OK, "", await getAllBrands())
+        return
+    } catch (error) {
+        console.log("failed to get all brands due to database issue, Error: ", error)
+        sendResponse(res, HttpStatus.INTERNAL_SERVER_ERROR, "failed to get brands.")
+    }
+}
+
+export async function getSuppliers(_req: Request, res: Response) {
+    try {
+        sendResponse(res, HttpStatus.OK, "", await getAllSuppliers())
+        return
+    } catch (error) {
+        console.log("failed to get results for all supliers due to database issue, Error: ", error)
+        sendResponse(res, HttpStatus.INTERNAL_SERVER_ERROR, "failed to get suppliers")
     }
 }

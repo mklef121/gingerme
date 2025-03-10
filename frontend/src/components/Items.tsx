@@ -1,31 +1,70 @@
-import { useTopSoldProducts } from "../composables/products-composables";
+import { useMemo, useState } from "react";
+import { useBrands, useSellers, useTopSoldProducts } from "../composables/products-composables";
+import Select from 'react-select';
 
 export const MostSoldItems = () => {
-  const { items, loading, error } = useTopSoldProducts()
+  const [brands, loadingBrands] = useBrands()
+  const [suppliers, loadingSuppliers] = useSellers()
+  const [brandId, setBrand] = useState<number | undefined>()
+  const [supplierId, setSupplier] = useState<number | undefined>()
+
+  const { items, loading, error } = useTopSoldProducts(brandId, supplierId)
+  const selectedBrand = useMemo(() => {
+    if (brandId) {
+      const found = brands.find((brand) => brand.id == brandId)
+      return {
+        value: found?.id,
+        label: found?.name
+      }
+    }
+  }, [brandId, brands])
+
+  const selectedSupplier = useMemo(() => {
+    if (supplierId) {
+      const found = suppliers.find((supplier) => supplier.id == supplierId)
+      return {
+        value: found?.id,
+        label: found?.name
+      }
+    }
+  }, [supplierId, suppliers])
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.error || error.message}</p>;
 
-
   return (
     <div className="p-4">
       <h2 className="text-2xl font-semibold mb-4">Most Sold Items</h2>
-      <div className="mb-4 flex space-x-4">
-        <select  className="border p-2">
-          <option value="">All Suppliers</option>
-          {/* Populate with supplier options from your database */}
-          <option value="1">Supplier 1</option>
-          <option value="2">Supplier 2</option>
-          {/* ... */}
-        </select>
+      <div className="mb-4 flex flex-row items-center space-x-4">
+        <span> Brands </span>
+        <Select
+          isLoading={loadingBrands}
+          isClearable={true}
+          isSearchable={true}
+          defaultValue={selectedBrand}
+          options={brands.map((brand) => ({
+            value: brand.id,
+            label: brand.name
+          }))}
+          onChange={(data) => {
+            setBrand(data?.value)
+          }}
+        />
 
-        <select  className="border p-2">
-          <option value="">All Brands</option>
-          {/* Populate with brand options from your database */}
-          <option value="1">Brand 1</option>
-          <option value="2">Brand 2</option>
-          {/* ... */}
-        </select>
+        <span> Suppliers </span>
+        <Select
+          isLoading={loadingSuppliers}
+          isClearable={true}
+          isSearchable={true}
+          defaultValue={selectedSupplier}
+          options={suppliers.map((supplier) => ({
+            value: supplier.id,
+            label: supplier.name
+          }))}
+          onChange={(data) => {
+            setSupplier(data?.value)
+          }}
+        />
       </div>
 
       <table className="min-w-full divide-y divide-gray-200">

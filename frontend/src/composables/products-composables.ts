@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { ApiResponse, Items, ProductResponse } from "../cores/types";
+import { ApiResponse, Brand, Items, ProductResponse, Supplier } from "../cores/types";
 import { API_BASE_URL } from "../config/api";
 
 export const useProducts = (page: string, limit: string) => {
@@ -23,7 +23,7 @@ export const useProducts = (page: string, limit: string) => {
 };
 
 
-export const useTopSoldProducts = () => {
+export const useTopSoldProducts = (brandId: number|undefined, supplierId: number|undefined) => {
     const [items, setItems] = useState<Items[]>([]);
     const [loading, setLoading] = useState(true);
     // eslint-disable-next-line
@@ -31,52 +31,56 @@ export const useTopSoldProducts = () => {
 
     useEffect(() => {
         setLoading(true)
-        axios.get<ApiResponse<Items[]>>(`${API_BASE_URL}/products/top-selling`)
+        const url = new URL(`${API_BASE_URL}/products/top-selling`)
+        if (brandId) url.searchParams.set("brand_id",brandId.toString())
+        if (supplierId) url.searchParams.set("supplier_id",supplierId.toString())
+
+        axios.get<ApiResponse<Items[]>>(url.href)
             .then((response) => setItems(response.data.data))
             .catch((err) => {
                 setError(err)
             })
             .finally(() => setLoading(false));
-    }, []);
+    }, [brandId, supplierId]);
 
     return { items, loading, error };
 }
 
-
-export const useSellers = () => {
-    const [items, setItems] = useState<Items[]>([]);
-    const [loading, setLoading] = useState(true);
-    // eslint-disable-next-line
-    const [error, setError] = useState<any>();
-
-    useEffect(() => {
-        setLoading(true)
-        axios.get<ApiResponse<Items[]>>(`${API_BASE_URL}/products/top-selling`)
-            .then((response) => setItems(response.data.data))
-            .catch((err) => {
-                setError(err)
-            })
-            .finally(() => setLoading(false));
-    }, []);
-
-    return { items, loading, error };
-}
 
 export const useBrands = () => {
-    const [items, setItems] = useState<Items[]>([]);
+    const [brands, setBrands] = useState<Brand[]>([]);
     const [loading, setLoading] = useState(true);
     // eslint-disable-next-line
     const [error, setError] = useState<any>();
 
     useEffect(() => {
         setLoading(true)
-        axios.get<ApiResponse<Items[]>>(`${API_BASE_URL}/products/top-selling`)
-            .then((response) => setItems(response.data.data))
+        axios.get<ApiResponse<Brand[]>>(`${API_BASE_URL}/products/brands`)
+            .then((response) => setBrands(response.data.data))
             .catch((err) => {
                 setError(err)
             })
             .finally(() => setLoading(false));
     }, []);
 
-    return { items, loading, error };
+    return [brands, loading, error] as [Brand[], boolean, unknown];
+}
+
+export const useSellers = () => {
+    const [suppliers, setSupplier] = useState<Supplier[]>([]);
+    const [loading, setLoading] = useState(true);
+    // eslint-disable-next-line
+    const [error, setError] = useState<any>();
+
+    useEffect(() => {
+        setLoading(true)
+        axios.get<ApiResponse<Supplier[]>>(`${API_BASE_URL}/products/suppliers`)
+            .then((response) => setSupplier(response.data.data))
+            .catch((err) => {
+                setError(err)
+            })
+            .finally(() => setLoading(false));
+    }, []);
+
+    return [suppliers, loading, error] as [Supplier[], boolean, unknown];
 }

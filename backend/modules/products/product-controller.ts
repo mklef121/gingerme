@@ -76,9 +76,20 @@ export async function createProductOrder(req: Request, res: Response) {
     }
 }
 
-export async function getTopSoldProducts(_req: Request, res: Response) {
+export async function getTopSoldProducts(req: Request, res: Response) {
+    const validateResult = validationResult(req)
+    if (!validateResult.isEmpty()) {
+        sendResponse(res, HttpStatus.BAD_REQUEST, getValidationMessage(validateResult))
+        return
+    }
+
+
     try {
-        sendResponse(res, HttpStatus.OK, "", await getTop10SoldProducts())
+
+        const brandId = req.query.brand_id ? Number(req.query.brand_id): null
+        const supplierId = req.query.supplier_id ? Number(req.query.supplier_id): null
+
+        sendResponse(res, HttpStatus.OK, "", await getTop10SoldProducts(brandId, supplierId))
         return
     } catch (error) {
         console.log("failed to get results due to database issue, Error: ", error)

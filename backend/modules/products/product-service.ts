@@ -79,7 +79,41 @@ function transformJointProducs(queryResult: ProductDetails[]): ProductDetailsRes
     }))
 }
 
-export async function getTop10SoldProducts() {
+export async function getTop10SoldProducts(brandId: number | null, supplierId: number | null) {
+    const searchConditions: Prisma.Sql[] = []
+    if (supplierId) {
+        searchConditions.push(Prisma.sql`products.supplier_id = ${supplierId}`)
+    }
+
+    if (brandId) {
+        searchConditions.push(Prisma.sql`products.brand_id = ${brandId}`)
+    }
+
+    const whereClause = searchConditions.length ?
+        Prisma.sql`where ${Prisma.join(searchConditions, ' and ')}` :
+        Prisma.empty
+    return await prisma.$queryRaw<
+        Array<TopSoldProducts>
+    >(Prisma.sql`
+            SELECT 
+                products.id,
+                products.name,
+                brands.name as brand_name,
+                suppliers.name as suppliers_name,
+                SUM(orders.quantity) AS quantity_sold
+            FROM public.products
+                    INNER JOIN public.orders ON products.id = orders.product_id
+                    INNER JOIN public.brands as brands ON products.brand_id = brands.id
+                    INNER JOIN public.suppliers as suppliers ON products.supplier_id = suppliers.id
+            ${whereClause}
+            GROUP BY products.id, brands.id, suppliers.id
+            ORDER BY quantity_sold DESC
+            LIMIT 10;
+    `)
+}
+
+
+export async function getTop10SoldProductsBackup(brandId: number | null, supplierId: number | null) {
     const productQuantities = await prisma.orders.groupBy({
         by: ['product_id'],
         _sum: {
@@ -135,26 +169,6 @@ export async function getTop10SoldProducts() {
             quantity_sold: order._sum.quantity || 0,
         };
     });
-}
-
-export async function getTop10SoldProductsBackup() {
-    return await prisma.$queryRaw<
-        Array<TopSoldProducts>
-    >(Prisma.sql`
-            SELECT 
-                products.id,
-                products.name,
-                brands.name as brand_name,
-                suppliers.name as suppliers_name,
-                SUM(orders.quantity) AS quantity_sold
-            FROM public.products
-                    INNER JOIN public.orders ON products.id = orders.product_id
-                    INNER JOIN public.brands as brands ON products.brand_id = brands.id
-                    INNER JOIN public.suppliers as suppliers ON products.supplier_id = suppliers.id
-            GROUP BY products.id, brands.id, suppliers.id
-            ORDER BY quantity_sold DESC
-            LIMIT 10;
-    `)
 }
 
 

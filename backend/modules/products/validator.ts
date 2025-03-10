@@ -15,3 +15,11 @@ export function getProductsPaginationValidator() {
 export function createProductOrderValidator() {
     return [integerParamValidator("productId"), body("quantity").isInt().toInt()]
 }
+
+
+export function getTopProductValidator() {
+    return [
+        query('brand_id').isInt().toInt().optional(),
+        query('supplier_id').isInt().toInt().optional()
+    ]
+}

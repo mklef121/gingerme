@@ -10,17 +10,21 @@ export interface ProductResponse {
   page: number;
   total_pages: number;
   total_count: number;
-  products: Product[]
+  products: Product[];
 }
 
 export interface Order {
-    id: number;
-    user_id: number;
-    product_name: string;
-    quantity: number;
-    total_price: number;
+  id: number;
+  user_id: number;
+  product_name: string;
+  quantity: number;
+  total_price: number;
+  products: Product;
+  users: {
+    name: string;
+    email: string;
+  }
 }
-
 
 export interface Product extends IdName {
   price: number;
@@ -34,9 +38,9 @@ export interface Product extends IdName {
 }
 
 export type ProductKeys = keyof Product;
-type Category = IdName
-type Brand = IdName
-type Supplier = IdName
+export type Category = IdName
+export type Brand = IdName
+export type Supplier = IdName
 
 
 interface IdName {
